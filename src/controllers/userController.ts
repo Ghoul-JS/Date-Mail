@@ -19,46 +19,64 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword }) as IUser;
+    // const user = await User.create({ name, email, password: hashedPassword }) as IUser;
 
-    if (user) {
-      res.status(201).json({
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user.id),
-      });
-    } else {
-      res.status(400).json({ message: "No se pudo registrar el usuario" });
-    }
+    const user = new User({
+      name, 
+      email, 
+      password: hashedPassword
+    })
+
+    await user.save();
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user,
+      token: generateToken(user.id),
+    });
+
+    // if (user) {
+    //   res.status(201).json({
+    //     _id: user.id,
+    //     name: user.name,
+    //     email: user.email,
+    //     token: generateToken(user.id),
+    //   });
+    // } else {
+    //   res.status(400).json({ message: "No se pudo registrar el usuario" });
+    // }
   } catch (error) {
-    res.status(500).json({ message: "Error en el servidor" });
+    console.error("Error during registration:", error);
+    res.status(500).json({
+      message: "Internal server error"
+    });
   }
 };
 
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email }) as IUser | null;
+    const user = await User.findOne({ email }) as IUser | null | any;
 
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
-        _id: user.id,
+        id: user._id,
         name: user.name,
         email: user.email,
-        token: generateToken(user.id),
+        token: generateToken(user._id),
       });
     } else {
       res.status(401).json({ message: "Credenciales incorrectas" });
     }
   } catch (error) {
-    res.status(500).json({ message: "Error en el servidor" });
+    console.error("Error en registerUser:", error); // <-- Agrega esto
+    res.status(500).json({ message: "Error en el servidor", error });
   }
 };
 
 export const getUserProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const user = req.user as IUser | null;
+    const user = req.user as IUser | null | any;
 
     if (!user) {
       res.status(401).json({ message: "No autorizado" });
@@ -66,7 +84,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response): Promise<v
     }
 
     res.json({
-      _id: user.id,
+      id: user._id,
       name: user.name,
       email: user.email,
     });
