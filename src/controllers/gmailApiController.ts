@@ -9,10 +9,17 @@ const oAuth2Client = new google.auth.OAuth2(
     process.env.REDIRECT_URI,
 );
 
+oAuth2Client.setCredentials({
+    access_token: process.env.ACCESS_TOKEN, 
+    refresh_token: process.env.REFRESH_TOKEN 
+});
+
 async function getMails(req:Request, res:Response) {
     try{
         const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/threads?maxResults=100`;
+      
         const { token } = await oAuth2Client.getAccessToken();
+
         const config = createConfig(url, token);
         const response = await axios(config);
         res.json(response.data);
