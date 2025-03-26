@@ -3,6 +3,8 @@ import createConfig from "../utils/utils"
 import { google } from "googleapis";
 import { Request, Response } from "express";
 import { HfInference } from "@huggingface/inference";
+import decodeBase64 from "../utils/decodeBase64";
+import extractDates from "../utils/extractDates";
 
 const oAuth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
@@ -35,15 +37,30 @@ async function getMails(req:Request, res:Response) {
 
 async function readMail(req:Request, res:Response) {
     try{
+        const hf = new HfInference(process.env.HF_TOKEN)
+       
         const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages/${req.params.messageId}`;
         const { token } = await oAuth2Client.getAccessToken();
         const config = createConfig(url, token);
         const response = await axios(config);
         
         let data = await response.data.payload.parts[0].body.data;
+        const decodedText = decodeBase64(data);
+
+        const translatedText = await hf.translation({
+            model: 'facebook/mbart-large-50-many-to-many-mmt',
+            inputs: decodedText,
+            parameters: {
+            "src_lang": "es_XX",
+            "tgt_lang": "en_XX"
+           }
+          })
+
+          const result = await extractDates(translatedText.translation_text)
+          console.log(result)
 
 
-        res.json(data);
+        res.json(result);
     }
     catch(error){
         console.log(error);
