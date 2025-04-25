@@ -3,17 +3,32 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.model";
 import { AuthRequest } from "../types/AuthRequest";
 
-const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+const authMiddleware = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const token = req.header("Authorization")?.split(" ")[1];
+    // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: "1h" });
 
     if (!token) {
       res.status(401).json({ message: "Acceso denegado. No hay token." });
-      return; // Agregamos `return` para evitar continuar la ejecución
+      return;
+    }
+    console.log(token);
+    console.log(process.env.JWT_SECRET);
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload;
+    console.log(decoded);
+    
+    if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
+      res.status(401).json({ message: "Token inválido o sin ID" });
+      return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
-    req.user = await User.findById(decoded.id).select("-password");
+    const userId = decoded.id as string;
+    req.user = await User.findById(userId).select("-password");
 
     if (!req.user) {
       res.status(401).json({ message: "Usuario no autorizado" });
@@ -22,6 +37,7 @@ const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunctio
 
     next(); // Pasar al siguiente middleware
   } catch (error) {
+    console.error("❌ Error al verificar el token:", error); // 🔥 este es el clave
     res.status(401).json({ message: "Token inválido" });
   }
 };
