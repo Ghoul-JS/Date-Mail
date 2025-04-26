@@ -2,10 +2,10 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 
-import userRoutes from "../src/routes/userRoutes"
-import eventRoutes from "../src/routes/eventRoutes"
-import gmailApiRoutes from "../src/routes/gmailApiRoutes"
-import googleRoutes from "../src/routes/googleRoutes"
+import userRoutes from "./routes/userRoutes"
+import eventRoutes from "./routes/eventRoutes"
+import gmailApiRoutes from "./routes/gmailApiRoutes"
+import googleRoutes from "./routes/googleRoutes"
 
 const app = express();
 
