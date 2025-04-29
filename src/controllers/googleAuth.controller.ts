@@ -27,7 +27,7 @@ export const googleAuth = (req: Request, res: Response) => {
     prompt: "consent",
     scope: SCOPES
   });
-  console.log("🔗 URL de autenticación:", url); // <- esto imprime el redirect_uri
+
   res.redirect(url);
 };
 
@@ -36,7 +36,6 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
   const code = req.query.code as string;
 
   try {
-    // 1️⃣ Intercambiar código por tokens
     const { tokens } = await oauth2Client.getToken(code);
 
     if (!tokens.access_token) {
@@ -44,10 +43,8 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
        return
     }
 
-    // 2️⃣ Establecer credenciales en el cliente OAuth
     oauth2Client.setCredentials(tokens);
 
-    // 3️⃣ Obtener información del usuario con Google People API
     const oauth2 = google.oauth2({
       auth: oauth2Client,
       version: "v2",
@@ -55,7 +52,7 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 
     const { data: userInfo } = await oauth2.userinfo.get();
 
-    const { email, name } = userInfo;
+    const { email, name, picture } = userInfo;
 
     if (!email) {
        res.status(400).json({ message: "No se pudo obtener el correo del usuario" });
@@ -67,7 +64,10 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     // 4️⃣ Buscar o crear usuario
     let user = await User.findOne({ email });
     if (!user) {
-      user = new User({ email, name });
+      user = new User({ email, name: name ?? '', image: picture ?? '' });
+    } else {
+      user.name = name ?? user.name; // por si cambió
+      user.image = picture ?? user.image;
     }
 
     user.google = {

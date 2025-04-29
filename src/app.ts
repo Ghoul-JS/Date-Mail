@@ -6,7 +6,7 @@ import userRoutes from "./routes/userRoutes"
 import eventRoutes from "./routes/eventRoutes"
 import gmailApiRoutes from "./routes/gmailApiRoutes"
 import googleRoutes from "./routes/googleRoutes"
-
+import dataAuthRotes from "./routes/dataAuth.routes"
 const app = express();
 
 //Middlewares
@@ -21,5 +21,6 @@ app.use("/api/v1", userRoutes)
 app.use("/api/v1", eventRoutes)
 app.use("/api/v1", gmailApiRoutes)
 app.use("/api/v1", googleRoutes)
+app.use("/api/v1", dataAuthRotes)
 
 export default app;

@@ -10,6 +10,7 @@ export interface IUser {
   _id: mongoose.Types.ObjectId; 
   name: string;
   email: string;
+  image: string;
   password: string;
   google?: GoogleAuth;
 }
@@ -21,6 +22,7 @@ const UserSchema = new Schema<IUser>({
     // Solo requerir password si no es usuario de Google
     return !this.google;
   }},
+  image: { type: String },
   google: {
     accessToken: { type: String },
     refreshToken: { type: String },
