@@ -39,8 +39,7 @@ async function getMails(req: AuthRequest, res: Response): Promise<void> {
             res.status(401).json({ message: "Usuario no autorizado o sin tokens de Google" });
             return
         }
-    
-        // 👉 Aquí seteas las credenciales antes de usar la API
+
         oAuth2Client.setCredentials({
           access_token: user?.google?.accessToken,
           refresh_token: user?.google?.refreshToken,
@@ -57,14 +56,14 @@ async function getMails(req: AuthRequest, res: Response): Promise<void> {
         console.log("emails :", emails );
 
         const fullMessagesNoVacios = emails
-            .filter(mensaje => mensaje) // Asegura que el mensaje exista
+            .filter(mensaje => mensaje)
             .map(mensaje => {
                 if (mensaje.fullMessage && mensaje.fullMessage.trim() !== "") {
                 return mensaje.fullMessage;
                 } else if (mensaje.snippet) {
                 return mensaje.snippet;
                 }
-                return ""; // En caso de que no haya ninguno
+                return ""; 
             })
             .filter(texto => texto.trim() !== "");
 
@@ -86,7 +85,7 @@ async function getMails(req: AuthRequest, res: Response): Promise<void> {
                         "tgt_lang": "en_XX"
                     }
                 });                            
-                translatedTextArray.push(result.translation_text); // Extrae el texto traducido
+                translatedTextArray.push(result.translation_text);
                 
                 await new Promise(resolve => setTimeout(resolve, 4000)); 
             } catch (error) {

@@ -35,9 +35,9 @@ const authMiddleware = async (
       return;
     }
 
-    next(); // Pasar al siguiente middleware
+    next(); 
   } catch (error) {
-    console.error("❌ Error al verificar el token:", error); // 🔥 este es el clave
+    console.error("❌ Error al verificar el token:", error);
     res.status(401).json({ message: "Token inválido" });
   }
 };

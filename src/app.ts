@@ -10,8 +10,8 @@ import dataAuthRotes from "./routes/dataAuth.routes"
 const app = express();
 
 //Middlewares
-app.use(express.json({ limit: "50mb" })); // Aumenta el límite de tamaño para el JSON
-app.use(express.urlencoded({ limit: "50mb", extended: true })); // Aumenta el límite de tamaño para datos URL-encoded
+app.use(express.json({ limit: "50mb" })); 
+app.use(express.urlencoded({ limit: "50mb", extended: true })); 
 app.use(morgan("dev"));
 app.use(cors());
 

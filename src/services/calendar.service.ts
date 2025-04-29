@@ -26,7 +26,7 @@ export async function createGoogleEvents({
 
   const umbral = 0.45;
   const yaProcesados = new Set<string>();
-  const eventosCreados = []; // <-- 🔥 aquí guardamos los que sí se crean
+  const eventosCreados = []; //
 
   for (const correo of correosRelevantes) {
     const { fechaDetectada, texto, etiquetas, puntuaciones } = correo;
@@ -107,7 +107,7 @@ export async function createGoogleEvents({
         googleEventId: response.data.id,
         resumen: response.data.summary,
         fecha: response.data.start?.dateTime
-      }); // <-- añadimos el evento exitoso
+      });
 
     } catch (error: any) {
       console.error('❌ Error al crear evento:', error.message || error);

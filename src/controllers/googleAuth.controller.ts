@@ -1,10 +1,8 @@
 import { google } from "googleapis";
 import { Request, Response } from "express";
 import User from "../models/user.model";
-import { AuthRequest } from "../types/AuthRequest";
 import jwt from "jsonwebtoken";
-import fetch from "node-fetch";
-import axios from "axios";
+
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
@@ -20,7 +18,6 @@ const SCOPES = [
   "https://www.googleapis.com/auth/calendar"
 ];
 
-// 👉 1. Redirige al usuario a Google
 export const googleAuth = (req: Request, res: Response) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
@@ -30,7 +27,6 @@ export const googleAuth = (req: Request, res: Response) => {
 
   res.redirect(url);
 };
-
 
 export const googleCallback = async (req: Request, res: Response): Promise<void> => {
   const code = req.query.code as string;
@@ -61,7 +57,6 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 
     console.log("📨 Usuario desde Google:", email, name);
 
-    // 4️⃣ Buscar o crear usuario
     let user = await User.findOne({ email });
     if (!user) {
       user = new User({ email, name: name ?? '', image: picture ?? '' });
@@ -78,7 +73,6 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 
     await user.save();
 
-    // 5️⃣ Crear JWT
     const appToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });

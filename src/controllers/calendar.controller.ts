@@ -7,7 +7,7 @@ import { AuthRequest } from "../types/AuthRequest";
 export async function programarEventos(req: AuthRequest, res: Response): Promise<void> {
   try {
     const { correosRelevantes } = req.body;
-    const user = await userModel.findById(req.user?._id); // req.user viene de tu middleware de autenticación
+    const user = await userModel.findById(req.user?._id); 
 
     if (!user?.google) {
        res.status(401).json({ error: 'Usuario sin conexión a Google' });

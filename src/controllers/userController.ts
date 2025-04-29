@@ -35,16 +35,6 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       token: generateToken(user.id),
     });
 
-    // if (user) {
-    //   res.status(201).json({
-    //     _id: user.id,
-    //     name: user.name,
-    //     email: user.email,
-    //     token: generateToken(user.id),
-    //   });
-    // } else {
-    //   res.status(400).json({ message: "No se pudo registrar el usuario" });
-    // }
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({
@@ -69,7 +59,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       res.status(401).json({ message: "Credenciales incorrectas" });
     }
   } catch (error) {
-    console.error("Error en registerUser:", error); // <-- Agrega esto
+    console.error("Error en registerUser:", error);
     res.status(500).json({ message: "Error en el servidor", error });
   }
 };
