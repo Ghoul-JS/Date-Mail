@@ -22,7 +22,8 @@ export const googleAuth = (req: Request, res: Response) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
     prompt: "consent",
-    scope: SCOPES
+    scope: SCOPES,
+    redirect_uri: process.env.REDIRECT_URI
   });
 
   res.redirect(url);
@@ -32,8 +33,8 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
   const code = req.query.code as string;
 
   try {
-    const { tokens } = await oauth2Client.getToken(code);
-
+    const { tokens } = await oauth2Client.getToken({code, redirect_uri: process.env.REDIRECT_URI});
+    
     if (!tokens.access_token) {
        res.status(400).json({ message: "No se obtuvo token de acceso de Google" });
        return
@@ -77,10 +78,11 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
       expiresIn: "1h",
     });
 
-    res.status(200).json({
-      message: "Autenticación con Google exitosa",
-      token: appToken,
-    });
+    // res.status(200).json({
+    //   message: "Autenticación con Google exitosa",
+    //   token: appToken,
+    // });
+    res.redirect(`http://localhost:3000/auth/callback?token=${appToken}`);
 
   } catch (error: any) {
     console.error("❗ Error en callback Google:", error?.response?.data || error.message);
