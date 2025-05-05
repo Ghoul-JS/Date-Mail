@@ -82,7 +82,21 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     //   message: "Autenticación con Google exitosa",
     //   token: appToken,
     // });
-    res.redirect(`http://localhost:3000/auth/callback?token=${appToken}`);
+    // res.redirect(`http://localhost:3000/auth/callback?token=${appToken}`);
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('token', appToken, {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24, // 1 día
+    });
+    // res.status(200).json({
+    //   message: "User logged in successfully!",
+    //   appToken,
+    // });
+    
+    res.redirect('http://localhost:3000/dashboard');
 
   } catch (error: any) {
     console.error("❗ Error en callback Google:", error?.response?.data || error.message);

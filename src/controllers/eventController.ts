@@ -9,7 +9,7 @@ export const getEvents = async (req: AuthRequest, res: Response): Promise<void> 
       return;
     }
     
-    const events = await Event.find({ userId: req.user.id });
+    const events = await Event.find({ userId: req.user._id });
     res.json(events);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener eventos" });
@@ -25,7 +25,7 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
 
     const { title, description, date, source } = req.body;
     const newEvent = new Event({
-      userId: req.user.id,
+      userId: req.user._id,
       title,
       description,
       date,

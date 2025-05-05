@@ -22,7 +22,7 @@ const UserSchema = new Schema<IUser>({
     // Solo requerir password si no es usuario de Google
     return !this.google;
   }},
-  image: { type: String },
+  image: { type: String, required: true },
   google: {
     accessToken: { type: String },
     refreshToken: { type: String },
