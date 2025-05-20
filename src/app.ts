@@ -17,7 +17,7 @@ app.use(morgan("dev"));
 app.use(cookieParser());
   
 app.use(cors({
-    origin: 'https://date-mail.onrender.com',
+    origin: ['http://localhost:3000'],
     credentials: true,
   }));
 
