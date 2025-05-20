@@ -1,6 +1,7 @@
 import axios from "axios"
 import createConfig from "./utils";
 import decodeBase64 from "./decodeBase64";
+import extractPlainTextPart from "./extraPlainText"
 
 const getFullMessage = async(email: string, threadId: string, token: string) => {
     try {
@@ -13,8 +14,9 @@ const getFullMessage = async(email: string, threadId: string, token: string) => 
         const lastMessage = messages[messages.length - 1];
 
         // Obtener el contenido del correo
-        const bodyData = lastMessage.payload.parts?.[0]?.body?.data || "";
-        const decodedMessage = decodeBase64(bodyData);
+        // const bodyData = lastMessage.payload.parts?.[0]?.body?.data || "";
+        const rawData = extractPlainTextPart(lastMessage.payload) || "";
+        const decodedMessage = decodeBase64(rawData);
 
         return {
             id: lastMessage.id,

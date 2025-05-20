@@ -37,8 +37,7 @@ const authMiddleware = async (
 
     // [Opcional de depuración] Ver usuarios en la base de datos
     const allUsers = await User.find();
-    console.log("📋 Usuarios encontrados en BD:", allUsers.map(u => ({ id: u._id, email: u.email })));
-
+  
     req.user = await User.findById(userId).select("-password") as IUser;
 
     if (!req.user) {

@@ -4,36 +4,56 @@ import { HfInference } from "@huggingface/inference";
 async function classifyEmails(texts: string[]) {
     const classifiedResults: any = [];
     const hf = new HfInference(process.env.HF_TOKEN) 
+    
+    for (let i = 0; i < texts.length; i++) {
+        const text = texts[i];
+        const cleanText = text.length > 1000 ? text.slice(0, 1000) : text;
+        
+  try {
+    const result = await hf.zeroShotClassification({
+      model: "facebook/bart-large-mnli",
+      inputs: cleanText,
+      parameters: {
+        candidate_labels: [    
+            'appointment',
+            'date',
+            'time',
+            'hour',
+            'schedule',
+            'meeting',
+            'interview',
+            'due date'],
+        multi_label: true,
+      },
+    });
+  
+    const typedResult = result as any;
 
-    for (const text of texts) {
-        try {
-            const result = await hf.zeroShotClassification({
-                model: "facebook/bart-large-mnli",
-                inputs: text,
-                parameters: {
-                  sequence_to_classify:text,
-                  candidate_labels: ["appointment", "meeting", "bill", "event", "schedule", "interview", "due date", "payment"],
-                  multi_label:true,
-                },
-            });
-
-                    // 👇 Logs para entender cómo clasifica cada correo
-                    const labels = (result as any).labels;
-                    const scores = (result as any).scores;
-
-                    console.log("📨 Texto del correo:");
-                    console.log(text);
-                    console.log("🏷️ Etiquetas:", labels);
-                    console.log("📊 Puntuaciones:", scores);
-                    
-            await new Promise(resolve => setTimeout(resolve, 4000));
-            classifiedResults.push(result);
-
-        } catch (error) {
-            console.error("Error al clasificar el texto:", error);
-            classifiedResults.push("error"); // Manejo de error
-        }
+    if (typedResult && typedResult.labels && typedResult.scores) {
+        console.log("📨 Texto del correo:\n", cleanText);
+        console.log("🏷️ Etiquetas:", typedResult.labels);
+        console.log("📊 Puntuaciones:", typedResult.scores);
+    } else {
+      console.warn("⚠️ Resultado vacío:", result);
     }
+
+    classifiedResults.push({
+      ...result,
+      sequence: cleanText,
+    });
+
+  } catch (error) {
+    console.error("❌ Error al clasificar el texto:", error);
+    classifiedResults.push({
+      labels: [],
+      scores: [],
+      sequence: cleanText,
+      error: true,
+    });
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 10000)); // evitar sobrecarga de Hugging Face API
+}
 
     return classifiedResults;
 }

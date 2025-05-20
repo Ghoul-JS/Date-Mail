@@ -24,7 +24,7 @@ export async function createGoogleEvents({
     'due date'
   ];
 
-  const umbral = 0.45;
+  const umbral = 0.95;
   const yaProcesados = new Set<string>();
   const eventosCreados = []; //
 

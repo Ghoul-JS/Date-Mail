@@ -11,7 +11,7 @@ type CorreoProcesado = {
 const getNumberOrUndefined = (value: number | null): number | undefined =>
   value === null ? undefined : value;
 
-//  Función para limpiar el texto antes de pasarlo a chrono
+// Función para limpiar el texto antes de pasarlo a chrono
 const limpiarTextoParaHora = (texto: string): string => {
   const limpio = texto
     .replace(/[⋅•·–—→\-]+/g, " ") // reemplaza símbolos por espacio
@@ -20,19 +20,28 @@ const limpiarTextoParaHora = (texto: string): string => {
     .replace(/(?:Enviado desde mi.*|Sent from my.*|—+\s*.*)/gi, "")
     .replace(/.*unsubscribe.*|.*no-responder.*|.*confidencial.*/gi, "")
     .trim();
-    console.log("🧹 Texto original:", texto);
-    console.log("✅ Texto limpio:", limpio);
-    return limpio;
+  console.log("🧹 Texto original:", texto);
+  console.log("✅ Texto limpio:", limpio);
+  return limpio;
 };
 
-const extraerCorreosConFechas = (dataCruda: any[][], scoreMinimo = 0.5): CorreoProcesado[] => {
+const extraerCorreosConFechas = (dataCruda: any[][], scoreMinimo = 0.95): CorreoProcesado[] => {
   // Log 1: Total de correos clasificados
   console.log("👉 Total de correos clasificados:", dataCruda.length);
+  console.log("DATA CRUDAA: ", dataCruda);
 
-  // Filtrar por score mínimo
-  const filtrados = dataCruda.flatMap(grupo => grupo).filter(correo =>
-    correo.scores && correo.scores.some((score: number) => score >= scoreMinimo)
-  );
+  // Aplanar, acceder a la clave '0' si existe y filtrar por score mínimo
+  const filtrados = dataCruda
+    .flatMap(grupo => grupo)
+    .map((correo: any) => {
+      if ('0' in correo && correo['0'].labels && correo['0'].scores) {
+        return correo['0'];
+      }
+      return correo;
+    })
+    .filter(correo =>
+      correo.scores && correo.scores.some((score: number) => score >= scoreMinimo)
+    );
 
   // Log 2: Correos que pasaron el filtro de puntuación
   console.log("✅ Correos con puntuación mayor a", scoreMinimo, ":", filtrados.length);
@@ -60,7 +69,7 @@ const extraerCorreosConFechas = (dataCruda: any[][], scoreMinimo = 0.5): CorreoP
         { zone: "local" }
       );
 
-      // Si chrono no detectó la hora
+      // Si chrono no detectó la hora explícitamente
       if (!components.isCertain("hour")) {
         const matchHora = texto.match(/(\d{1,2}:\d{2}(?:\s*[ap]\.?m\.?)?)/i);
         if (matchHora) {
@@ -91,6 +100,5 @@ const extraerCorreosConFechas = (dataCruda: any[][], scoreMinimo = 0.5): CorreoP
 
   return correosConFecha;
 };
-
 
 export default extraerCorreosConFechas;

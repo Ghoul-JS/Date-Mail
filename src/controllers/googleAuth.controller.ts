@@ -56,8 +56,6 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
        return
     }
 
-    console.log("📨 Usuario desde Google:", email, name);
-
     let user = await User.findOne({ email });
     if (!user) {
       user = new User({ email, name: name ?? '', image: picture ?? '' });
