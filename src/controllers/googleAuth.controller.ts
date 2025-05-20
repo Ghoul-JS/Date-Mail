@@ -75,25 +75,22 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     const appToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });
+    // const isProduction = process.env.NODE_ENV === 'production';
 
-    // res.status(200).json({
-    //   message: "Autenticación con Google exitosa",
-    //   token: appToken,
+    // res.cookie('token', appToken, {
+    //   httpOnly: false,
+    //   secure: isProduction,
+    //   sameSite: 'lax',
+    //   maxAge: 1000 * 60 * 60 * 24, // 1 día
     // });
-    // res.redirect(`http://localhost:3000/auth/callback?token=${appToken}`);
-    const isProduction = process.env.NODE_ENV === 'production';
 
     res.cookie('token', appToken, {
-      httpOnly: false,
-      secure: isProduction,
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24, // 1 día
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24,
     });
-    // res.status(200).json({
-    //   message: "User logged in successfully!",
-    //   appToken,
-    // });
-    
+   
     res.redirect('http://localhost:3000/dashboard');
 
   } catch (error: any) {
