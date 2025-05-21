@@ -92,7 +92,7 @@ async function getMails(req: AuthRequest, res: Response): Promise<void> {
 
             try {
                 const translationResponse = await axios.post(
-                    "http://localhost:5000/translate",
+                    "https://libretranslate-on-render-me77.onrender.com/translate",
                     {
                         q: text,
                         source: "es",
